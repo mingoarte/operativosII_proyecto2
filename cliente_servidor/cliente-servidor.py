@@ -46,12 +46,12 @@ def levantarse():
 	# Create a TCP/IP socket
 
 	# Bind the socket to the port
-	server_address = ('192.168.0.102', 10000)
+	server_address = (HOST, 10000)
 	print >>sys.stderr, 'starting up on %s port %s' % server_address
 	sock_escucha.bind(server_address)
 
 	#Socket para verificar si la conexion con el servidor maestro funciona
-	server_address = ('192.168.0.102', 10001)
+	server_address = (HOST, 10001)
 	sock_verificacion.bind(server_address)
 	
 	# Listen for incoming connections
@@ -178,13 +178,12 @@ def cargar_biblioteca():
 def inscripcion_central():
 	sock_central = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	#Direccion del servidor maestro.
-	master_server_address = ('192.168.0.102', 10777)
+	master_server_address = (SERVER_IP, SERVER_PORT)
 	sock_central.connect(master_server_address)
 	try:
 	# Send data
-		server_ip = '192.168.0.102'
-		server_port = '10000'
-		verify_port = '10001'
+		server_ip = HOST
+		server_port = str(PORT)
 		biblioteca.insert(0,server_ip)
 		biblioteca.insert(1,server_port)
 		data_string = pickle.dumps(biblioteca)
@@ -256,5 +255,30 @@ def descarga():
 		finally:
 
 			connection.close()
+#Función principal que toma la opción del menu y ejecuta el procedimiento
+#adecuado.
+
+if __name__ == "__main__":
+    try:
+        opts, args = getopt(sys.argv[1:], "", ['host=', 'port=','server_ip=','server_port='])
+    except GetoptError as err:
+        print(err) 
+        sys.exit(2)
+
+    HOST = 'localhost'
+    PORT = 10057
+	SERVER_IP = 'localhost'
+	SERVER_PORT = 10058
+    for o, a in opts:
+        if o == "--host":
+            HOST = a
+        elif o == "--port":
+			PORT = int(a)
+		elif o == "--server_ip":
+		    SERVER_IP = a
+		elif o == "--server_port":
+            SERVER_PORT = int(a)
+        else:
+            assert False, "unhandled option"
 
 menu()

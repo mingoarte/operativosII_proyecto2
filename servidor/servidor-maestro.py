@@ -208,12 +208,12 @@ def verificar_conexion():
 		for i, socket in enumerate(lista_sockets):
 			
 			try:
-				socket.sendall("test")
+				socket.send("1")
 			except Exception, errorcode:
+				print "El servidor: " + master_biblioteca[i][0] + " se desconecto."
 				del master_biblioteca[i]
 				del libros_descargados[i]
 				del lista_sockets[i]
-				print "SE MURIO"
 
 
 menu()

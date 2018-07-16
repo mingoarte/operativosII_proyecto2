@@ -126,9 +126,9 @@ def busqueda_autor(autor):
 def menu():
 	hilo = threading.Thread(target=conexion_cliente)
 	hilo.start()
-	hilo2 = threading.Thread(target = recoleccion)
+	hilo2 = threading.Thread(target=recoleccion)
 	hilo2.start()
-	hilo3 = threading.Thread(target = verificar_conexion)
+	hilo3 = threading.Thread(target=verificar_conexion)
 	hilo3.start()
 	while True:
 		verificar_conexion()
@@ -160,11 +160,10 @@ def conexion_cliente():
 		
 		try:
 
-			# Receive the data in small chunks and retransmit it
-			data = connection.recv(99)
+			# Recibe datos en chunks pequeños
+			data = connection.recv(128)
 			if data.replace(' ', '') != "1":
 				data = data.split(';')
-
 
 				if data[0].lower().replace(' ', '') == 'a':
 					lista_servidores = busqueda_autor(data[1])

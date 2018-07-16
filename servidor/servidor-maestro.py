@@ -12,12 +12,13 @@ import pickle , threading, sys, socket
 
 master_biblioteca = []
 libros_descargados = []
+lista_sockets = []
 
 
 #Creacion del socket por el que se conectan los servidores
 #de descarga.
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = ('192.168.1.183', 10777)
+server_address = ('192.168.0.102', 10777)
 print >>sys.stderr, 'starting up on %s port %s' % server_address
 sock.bind(server_address)
 sock.listen(10)
@@ -25,7 +26,7 @@ sock.listen(10)
 
 #Creacion del socket por el que se conectan los clientes.
 sock_cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = ('192.168.1.183', 10776)
+server_address = ('192.168.0.102', 10776)
 print >>sys.stderr, 'starting up on %s port %s' % server_address
 sock_cliente.bind(server_address)
 sock_cliente.listen(10)
@@ -44,6 +45,18 @@ def recoleccion():
 			data_array = pickle.loads(data)
 			master_biblioteca.append(data_array)
 			libros_descargados.append([])
+
+
+			#Socket para verificar la conexion con los clientes-servidores.
+			sock_verificacion = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			
+			#Conexion al servidor de descarga.
+			server_address = (data_array[0], int(data_array[1]) + 1)
+			sock_verificacion.connect(server_address)
+
+			lista_sockets.append(sock_verificacion)
+
+
 
 		
 		finally:
@@ -131,7 +144,6 @@ def menu():
 	hilo3 = threading.Thread(target = verificar_conexion)
 	hilo3.start()
 	while True:
-		verificar_conexion()
 		os.system('clear')
 		print master_biblioteca
 		print('Menu')
@@ -194,18 +206,14 @@ def conexion_cliente():
 
 def verificar_conexion():
 	while True:
-		for i, servidor in enumerate(master_biblioteca):
-			sock_verificacion = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-			
-			#Direccion del servidor de descarga.
-			server_address = (servidor[0], int(servidor[1]) + 1)
+		for i, socket in enumerate(lista_sockets):
 			
 			try:
-				sock_verificacion.connect(server_address)
-				sock_verificacion.close()
+				socket.sendall("test")
 			except Exception, errorcode:
 				del master_biblioteca[i]
 				del libros_descargados[i]
+				del lista_sockets[i]
 				print "SE MURIO"
 
 

@@ -17,14 +17,15 @@ libros_descargados = []
 #Creacion del socket por el que se conectan los servidores
 #de descarga.
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = ('192.168.0.106', 10777)
+server_address = ('192.168.1.183', 10777)
 print >>sys.stderr, 'starting up on %s port %s' % server_address
 sock.bind(server_address)
 sock.listen(10)
 
+
 #Creacion del socket por el que se conectan los clientes.
 sock_cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = ('192.168.0.106', 10776)
+server_address = ('192.168.1.183', 10776)
 print >>sys.stderr, 'starting up on %s port %s' % server_address
 sock_cliente.bind(server_address)
 sock_cliente.listen(10)
@@ -127,8 +128,12 @@ def menu():
 	hilo.start()
 	hilo2 = threading.Thread(target = recoleccion)
 	hilo2.start()
+	hilo3 = threading.Thread(target = verificar_conexion)
+	hilo3.start()
 	while True:
+		verificar_conexion()
 		os.system('clear')
+		print master_biblioteca
 		print('Menu')
 		print('1. Descargas por servidor')
 		eleccion = raw_input("Escoja una opcion valida: ")
@@ -186,6 +191,22 @@ def conexion_cliente():
 		finally:
 			# Clean up the connection
 			connection.close()
+
+def verificar_conexion():
+	while True:
+		for i, servidor in enumerate(master_biblioteca):
+			sock_verificacion = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			
+			#Direccion del servidor de descarga.
+			server_address = (servidor[0], int(servidor[1]) + 1)
+			
+			try:
+				sock_verificacion.connect(server_address)
+				sock_verificacion.close()
+			except Exception, errorcode:
+				del master_biblioteca[i]
+				del libros_descargados[i]
+				print "SE MURIO"
 
 
 menu()

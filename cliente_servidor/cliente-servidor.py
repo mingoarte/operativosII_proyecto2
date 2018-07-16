@@ -27,6 +27,7 @@ clientes = []
 descargas_clientes = []
 cwd = os.getcwd()
 sock_escucha = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock_verificacion = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 
 #Esta función toma un entero y lo representa en bytes:
@@ -45,13 +46,17 @@ def levantarse():
 	# Create a TCP/IP socket
 
 	# Bind the socket to the port
-	server_address = ('192.168.0.106', 10000)
+	server_address = ('192.168.1.183', 10000)
 	print >>sys.stderr, 'starting up on %s port %s' % server_address
 	sock_escucha.bind(server_address)
 
-
+	#Socket para verificar si la conexion con el servidor maestro funciona
+	server_address = ('192.168.1.183', 10001)
+	sock_verificacion.bind(server_address)
+	
 	# Listen for incoming connections
 	sock_escucha.listen(3)
+	sock_verificacion.listen(3)
 
 
 #Agregar libro a la biblioteca del servidor de descarga. Al final esta
@@ -141,6 +146,7 @@ def menu():
 def guardar_biblioteca():
 	f = open('biblioteca.txt','wb')
 	f.write( str(len(biblioteca)) + '\n' )
+	print(biblioteca)
 	for x in xrange(0,len(biblioteca)):
 		f.write(biblioteca[x].titulo + '\n')
 		f.write(biblioteca[x].autor + '\n')
@@ -172,12 +178,13 @@ def cargar_biblioteca():
 def inscripcion_central():
 	sock_central = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	#Direccion del servidor maestro.
-	master_server_address = ('192.168.0.106', 10777)
+	master_server_address = ('192.168.1.183', 10777)
 	sock_central.connect(master_server_address)
 	try:
 	# Send data
-		server_ip = '192.168.0.106'
+		server_ip = '192.168.1.183'
 		server_port = '10000'
+		verify_port = '10001'
 		biblioteca.insert(0,server_ip)
 		biblioteca.insert(1,server_port)
 		data_string = pickle.dumps(biblioteca)

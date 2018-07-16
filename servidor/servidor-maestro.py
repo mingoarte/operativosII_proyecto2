@@ -17,7 +17,7 @@ libros_descargados = []
 #Creacion del socket por el que se conectan los servidores
 #de descarga.
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = ('192.168.1.183', 10777)
+server_address = ('localhost', 10777)
 print >>sys.stderr, 'starting up on %s port %s' % server_address
 sock.bind(server_address)
 sock.listen(10)
@@ -25,7 +25,7 @@ sock.listen(10)
 
 #Creacion del socket por el que se conectan los clientes.
 sock_cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_address = ('192.168.1.183', 10776)
+server_address = ('localhost', 10776)
 print >>sys.stderr, 'starting up on %s port %s' % server_address
 sock_cliente.bind(server_address)
 sock_cliente.listen(10)
@@ -41,6 +41,7 @@ def recoleccion():
 		try:
 
 			data = connection.recv(4096)
+			print(data)
 			data_array = pickle.loads(data)
 			master_biblioteca.append(data_array)
 			libros_descargados.append([])
@@ -159,7 +160,6 @@ def conexion_cliente():
 		connection, client_address = sock_cliente.accept()
 		
 		try:
-
 			# Recibe datos en chunks pequeños
 			data = connection.recv(128)
 			if data.replace(' ', '') != "1":
